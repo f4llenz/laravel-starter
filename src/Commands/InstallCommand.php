@@ -160,12 +160,12 @@ class InstallCommand extends Command
         ];
 
         spin(
-            fn () => Process::run('composer require '.implode(' ', $requirePackages))->throw(),
+            fn () => Process::run('composer require -W '.implode(' ', $requirePackages))->throw(),
             'Installing production packages...'
         );
 
         spin(
-            fn () => Process::run('composer require --dev '.implode(' ', $requireDevPackages))->throw(),
+            fn () => Process::run('composer require -W --dev '.implode(' ', $requireDevPackages))->throw(),
             'Installing development packages...'
         );
     }
