@@ -1,0 +1,9 @@
+/vendor/
+composer.lock
+.phpunit.result.cache
+.DS_Store
+.idea/
+
+# VitePress cache and build output
+docs-site/.vitepress/cache
+docs-site/.vitepress/dist

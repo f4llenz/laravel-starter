@@ -1,0 +1,32 @@
+{
+    "name": "f4llenz/laravel-starter",
+    "description": "Post-install starter pack for Laravel Vue applications",
+    "keywords": ["laravel", "starter", "filament", "pest", "phpstan"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "F4llen",
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "F4llenz\\LaravelStarter\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "F4llenz\\LaravelStarter\\StarterServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
