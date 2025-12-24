@@ -67,6 +67,12 @@ composer require f4llenz/laravel-starter --dev
 php artisan starter:install
 ```
 
+### 4. Install Laravel Boost
+
+```bash
+php artisan boost:install
+```
+
 ### Options
 
 ```bash
