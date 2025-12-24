@@ -51,18 +51,23 @@ class InstallCommand extends Command
 
         $this->publishAssets();
         $this->generateIdeHelpers();
+        $this->updateClaudeMd();
 
         info('');
         info('Laravel Starter Pack installed successfully!');
         info('');
         info('Next steps:');
-        info('  1. Run: composer analyse (to verify PHPStan setup)');
-        info('  2. Run: php artisan test (to verify Pest setup)');
-        info('  3. Run: npm run docs:dev (to view documentation)');
-        info('  4. Visit: /admin (Filament admin panel)');
-        info('  5. Visit: /telescope (debugging dashboard)');
-        info('  6. Visit: /horizon (queue dashboard)');
-        info('  7. Visit: /pulse (performance dashboard)');
+        info('  1. Run: php artisan boost:install');
+        info('  2. Run: openspec init (optional, for change proposals)');
+        info('  3. Run: composer analyse (to verify PHPStan setup)');
+        info('  4. Run: php artisan test (to verify Pest setup)');
+        info('  5. Run: npm run docs:dev (to view documentation)');
+        info('');
+        info('Dashboards:');
+        info('  - /admin (Filament admin panel)');
+        info('  - /telescope (debugging dashboard)');
+        info('  - /horizon (queue dashboard)');
+        info('  - /pulse (performance dashboard)');
 
         return self::SUCCESS;
     }
@@ -303,5 +308,117 @@ class InstallCommand extends Command
             fn () => $this->callSilently('ide-helper:meta'),
             'Generating IDE meta file...'
         );
+    }
+
+    protected function updateClaudeMd(): void
+    {
+        $claudePath = base_path('CLAUDE.md');
+
+        if (! $this->files->exists($claudePath)) {
+            return;
+        }
+
+        info('Updating CLAUDE.md with custom rules...');
+
+        $content = $this->files->get($claudePath);
+        $modified = false;
+
+        // 1. Add VitePress docs section before boost block
+        if (str_contains($content, '<laravel-boost-guidelines>') && ! str_contains($content, '## Internal Documentation')) {
+            $vitepressSection = $this->getVitepressSection();
+            $content = str_replace(
+                '<laravel-boost-guidelines>',
+                $vitepressSection."\n<laravel-boost-guidelines>",
+                $content
+            );
+            $modified = true;
+        }
+
+        // 2. Add Context7 rule to Laravel 12 section
+        if (str_contains($content, '=== laravel/v12 rules ===') && ! str_contains($content, 'context7')) {
+            $context7Rule = "- Always use context7 when I need library/API documentation. This means you should automatically use the Context7 MCP\n  tools to resolve library id and get library docs without me having to explicitly ask. When dealing with Filament, always use Context7 first.";
+
+            // Insert after "Since Laravel 11, Laravel has a new streamlined file structure which this project uses."
+            $content = preg_replace(
+                '/(- Since Laravel 11, Laravel has a new streamlined file structure which this project uses\.)/',
+                "$1\n".$context7Rule,
+                $content
+            );
+            $modified = true;
+        }
+
+        // 3. Add Git rules before closing </laravel-boost-guidelines>
+        if (str_contains($content, '</laravel-boost-guidelines>') && ! str_contains($content, '=== git rules ===')) {
+            $gitRules = $this->getGitRulesSection();
+            $content = str_replace(
+                '</laravel-boost-guidelines>',
+                $gitRules."\n</laravel-boost-guidelines>",
+                $content
+            );
+            $modified = true;
+        }
+
+        if ($modified) {
+            $this->files->put($claudePath, $content);
+        }
+    }
+
+    protected function getVitepressSection(): string
+    {
+        return <<<'MD'
+## Internal Documentation
+
+This project has a VitePress documentation site for internal reference.
+
+### Viewing Documentation
+
+```bash
+npm run docs:dev
+```
+
+Opens at http://localhost:5173
+
+### Updating Documentation
+
+When implementing features that change:
+- Architecture or data flow
+- Domain models or relationships
+- Code patterns (DTOs, Actions, Services)
+- Database schema
+- Integration behavior
+
+Update the relevant pages in `docs-site/`:
+
+| Topic | File |
+|-------|------|
+| Getting Started | `docs-site/getting-started/index.md` |
+| Architecture | `docs-site/architecture/*.md` |
+| Domain Models | `docs-site/domain/*.md` |
+| Features | `docs-site/features/*.md` |
+| Code Patterns | `docs-site/patterns/*.md` |
+| Database | `docs-site/database/index.md` |
+| Integrations | `docs-site/integrations/*.md` |
+
+### Documentation Guidelines
+
+- Keep pages focused and concise
+- Include code examples where helpful
+- Link to related pages
+
+MD;
+    }
+
+    protected function getGitRulesSection(): string
+    {
+        return <<<'MD'
+
+=== git rules ===
+
+## Git Commits
+
+- DO NOT add "Generated with [Claude Code]" or "Co-Authored-By: Claude" to commit messages.
+- Write concise, descriptive commit messages that explain what changed and why.
+- Follow conventional commit format when appropriate (feat:, fix:, refactor:, etc.).
+MD;
     }
 }

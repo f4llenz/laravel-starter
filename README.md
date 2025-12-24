@@ -40,10 +40,12 @@ app/
 - `.github/workflows/ci.yml` - CI pipeline (Pint, PHPStan, Tests, Frontend)
 - `docs-site/` - VitePress internal documentation
 
-### Composer Scripts
+### CLAUDE.md Enhancements
 
-- `composer test` - Run tests
-- `composer analyse` - Run PHPStan
+The installer automatically adds to your `CLAUDE.md`:
+- VitePress documentation section
+- Context7 rule for Filament docs
+- Git commit rules (no Claude attribution)
 
 ## Installation
 
@@ -58,7 +60,8 @@ cd my-app
 ### 2. Require this package
 
 ```bash
-composer require f4llenz/laravel-starter --dev
+composer config repositories.starter vcs https://github.com/f4llenz/laravel-starter.git
+composer require f4llenz/laravel-starter:dev-main --dev
 ```
 
 ### 3. Run the installer
@@ -67,10 +70,14 @@ composer require f4llenz/laravel-starter --dev
 php artisan starter:install
 ```
 
-### 4. Install Laravel Boost
+### 4. Run post-install commands
 
 ```bash
+# Required: Set up AI coding assistant guidelines
 php artisan boost:install
+
+# Optional: Set up change proposal system
+openspec init
 ```
 
 ### Options
@@ -88,7 +95,7 @@ php artisan starter:install --skip-docs
 
 ## After Installation
 
-### Access Dashboards
+### Dashboards
 
 | URL | Purpose |
 |-----|---------|
@@ -97,7 +104,7 @@ php artisan starter:install --skip-docs
 | `/horizon` | Queue dashboard |
 | `/pulse` | Performance monitoring |
 
-### Run Quality Checks
+### Quality Checks
 
 ```bash
 # Format code
@@ -110,28 +117,33 @@ composer analyse
 php artisan test
 ```
 
-### View Documentation
+### Documentation
 
 ```bash
 npm run docs:dev
 # Open http://localhost:5173
 ```
 
+## Composer Scripts
+
+- `composer test` - Clear config and run tests
+- `composer analyse` - Run PHPStan
+
 ## Development
-
-### Publishing to Packagist
-
-1. Update `composer.json` with your vendor name
-2. Push to GitHub
-3. Register on [Packagist](https://packagist.org/)
 
 ### Testing Locally
 
 ```bash
 # In another Laravel project
 composer config repositories.starter path ../laravel-starter
-composer require f4llenz/laravel-starter --dev
+composer require f4llenz/laravel-starter:dev-main --dev
 ```
+
+### Publishing to Packagist
+
+1. Update `composer.json` with your vendor name
+2. Push to GitHub
+3. Register on [Packagist](https://packagist.org/)
 
 ## License
 
